@@ -1,20 +1,20 @@
 // Sample data
 let users = [
-    { id: 1, name: "John Doe", username: "john.doe", password: "user123", role: "user", authorizedVehicles: [1, 2, 3] },
-    { id: 2, name: "Jane Smith", username: "jane.smith", password: "user123", role: "user", authorizedVehicles: [2, 4, 5] },
-    { id: 3, name: "Mike Johnson", username: "mike.johnson", password: "user123", role: "user", authorizedVehicles: [1, 6] },
-    { id: 4, name: "Admin User", username: "admin", password: "admin123", role: "admin", authorizedVehicles: [] }
+    { id: 1, name: "Luyanda Xhakaza", username: "luyanda.xhakaza", password: "user123", role: "user", authorizedVehicles: [1, 2, 3] },
+    { id: 2, name: "Keanu Moodley", username: "keanu.moodley", password: "user123", role: "user", authorizedVehicles: [2, 4, 5] },
+    { id: 3, name: "Dembe Makhari", username: "dembe.makhari", password: "user123", role: "user", authorizedVehicles: [1, 6] },
+    { id: 4, name: "Konanani Maduguma", username: "admin", password: "admin123", role: "admin", authorizedVehicles: [] }
 ];
 
 let vehicles = [
-    { id: 1, name: "Toyota Camry", plate: "CA 123-456", type: "sedan", status: "available", currentHolder: null },
-    { id: 2, name: "Honda CR-V", plate: "GP 789 ABC", type: "suv", status: "in-use", currentHolder: 1 },
-    { id: 3, name: "Ford F-150", plate: "NW 456-789", type: "truck", status: "available", currentHolder: null },
-    { id: 4, name: "Nissan Altima", plate: "FS 012-345", type: "sedan", status: "in-use", currentHolder: 2 },
-    { id: 5, name: "Chevy Tahoe", plate: "KZN 345 XYZ", type: "suv", status: "available", currentHolder: null },
-    { id: 6, name: "BMW X5", plate: "EC 678-901", type: "suv", status: "in-use", currentHolder: 3 },
-    { id: 7, name: "Mercedes Sprinter", plate: "WC 901-234", type: "van", status: "available", currentHolder: null },
-    { id: 8, name: "Volkswagen Golf", plate: "LIM 234-567", type: "sedan", status: "available", currentHolder: null }
+    { id: 1, name: "Toyota Etios", plate: "HF 26 XZ GP", type: "sedan", status: "available", currentHolder: null },
+    { id: 2, name: "Honda CR-V", plate: "KH 73 TL GP", type: "suv", status: "in-use", currentHolder: 1 },
+    { id: 3, name: "Ford Ranger Raptor", plate: "BSP 636 L", type: "truck", status: "available", currentHolder: null },
+    { id: 4, name: "Nissan Almera", plate: "MD 47 WS GP", type: "sedan", status: "in-use", currentHolder: 2 },
+    { id: 5, name: "Chevy Tahoe", plate: "FY 38 HZ GP", type: "suv", status: "available", currentHolder: null },
+    { id: 6, name: "BMW X5", plate: "MD 47 WZ GP", type: "suv", status: "in-use", currentHolder: 3 },
+    { id: 7, name: "Mercedes Sprinter", plate: "JZ 26 CR GP", type: "van", status: "available", currentHolder: null },
+    { id: 8, name: "Volkswagen Golf", plate: "JZ 27 GH GP", type: "sedan", status: "available", currentHolder: null }
 ];
 
 let activityLog = [
