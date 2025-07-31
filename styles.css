@@ -6,9 +6,9 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #001f3f;
     min-height: 100vh;
-    color: #333;
+    color: #f4f4f4;
 }
 
 .container {
@@ -32,7 +32,7 @@ body {
 .logo {
     font-size: 24px;
     font-weight: bold;
-    color: #5a67d8;
+    color: #333;
 }
 
 .user-info {
@@ -53,40 +53,40 @@ body {
 }
 
 .btn-primary {
-    background: #5a67d8;
-    color: white;
+    background: #003366;
+    color: #f4f4f4;
 }
 
 .btn-primary:hover {
-    background: #4c51bf;
+    background: #002244;
     transform: translateY(-2px);
 }
 
 .btn-secondary {
-    background: #e2e8f0;
-    color: #4a5568;
+    background: #f4f4f4;
+    color: #001f3f;
 }
 
 .btn-secondary:hover {
-    background: #cbd5e0;
+    background: #e0e0e0;
 }
 
 .btn-danger {
-    background: #e53e3e;
-    color: white;
+    background: #c0392b;
+    color: #fff;
 }
 
 .btn-danger:hover {
-    background: #c53030;
+    background: #922b21;
 }
 
 .btn-success {
-    background: #38a169;
-    color: white;
+    background: #218c74;
+    color: #fff;
 }
 
 .btn-success:hover {
-    background: #2f855a;
+    background: #145a32;
 }
 
 .auth-container {
@@ -102,7 +102,7 @@ body {
 .auth-title {
     text-align: center;
     margin-bottom: 30px;
-    color: #5a67d8;
+    color: #f4f4f4;
     font-size: 28px;
 }
 
@@ -144,6 +144,10 @@ body {
     padding: 20px;
     height: fit-content;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar h3 {
+    color: #333;
 }
 
 .main-content {
@@ -198,6 +202,10 @@ body {
     margin-bottom: 10px;
 }
 
+.key-icon i {
+    color: #000;
+}
+
 .vehicle-name {
     font-weight: bold;
     margin-bottom: 5px;
@@ -225,12 +233,17 @@ body {
 
 .status-in-use {
     background: #fed7d7;
-    color: #742a2a;
+    color: #8B0000;
 }
 
 .status-unauthorized {
     background: #e2e8f0;
     color: #4a5568;
+}
+
+.key-status.status-in-use,
+.key-status.status-inuse {
+    color: #8B0000 !important;
 }
 
 .modal {
@@ -277,8 +290,8 @@ body {
 }
 
 .stat-card {
-    background: linear-gradient(135deg, #5a67d8 0%, #667eea 100%);
-    color: white;
+    background: #003366;
+    color: #f4f4f4;
     padding: 20px;
     border-radius: 12px;
     text-align: center;
@@ -383,6 +396,33 @@ body {
     background: #f7fafc;
     font-weight: 600;
     color: #4a5568;
+}
+
+#currentUser {
+    color: #333;
+    font-weight: bold;
+}
+
+#keyModalContent h3,
+#keyModalContent p,
+#keyModalContent label,
+#keyModalContent,
+#keyModalContent ul,
+#keyModalContent li {
+    color: #333;
+}
+
+#addUserModal h3,
+#addVehicleModal h3 {
+    color: #333;
+}
+
+#userProfile,
+#userProfile p,
+#currentKeyInfo,
+#currentKeyInfo p,
+#currentKeyInfo div {
+    color: #333;
 }
 
 @media (max-width: 768px) {
