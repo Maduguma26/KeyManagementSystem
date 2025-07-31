@@ -5,11 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vehicle Key Management System</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <!-- Authentication Screen -->
     <div id="authScreen" class="auth-container">
-        <h2 class="auth-title">🔐 Vehicle Key Management</h2>
+        <h2 class="auth-title">
+            <i class="fa-solid fa-lock"></i> Vehicle Key Management
+        </h2>
         <form id="loginForm">
             <div class="form-group">
                 <label for="username">Username</label>
@@ -33,7 +36,9 @@
     <!-- Main Dashboard -->
     <div id="dashboard" class="container hidden">
         <div class="header">
-            <div class="logo">🚗 VehicleKey Pro</div>
+            <div class="logo">
+                <i class="fa-solid fa-car"></i> VehicleKey Pro
+            </div>
             <div class="user-info">
                 <span id="currentUser"></span>
                 <button class="btn btn-secondary" onclick="logout()">Logout</button>

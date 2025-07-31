@@ -7,14 +7,14 @@ let users = [
 ];
 
 let vehicles = [
-    { id: 1, name: "Toyota Camry", plate: "ABC-123", type: "sedan", status: "available", currentHolder: null },
-    { id: 2, name: "Honda CR-V", plate: "XYZ-789", type: "suv", status: "in-use", currentHolder: 1 },
-    { id: 3, name: "Ford F-150", plate: "DEF-456", type: "truck", status: "available", currentHolder: null },
-    { id: 4, name: "Nissan Altima", plate: "GHI-012", type: "sedan", status: "in-use", currentHolder: 2 },
-    { id: 5, name: "Chevy Tahoe", plate: "JKL-345", type: "suv", status: "available", currentHolder: null },
-    { id: 6, name: "BMW X5", plate: "MNO-678", type: "suv", status: "in-use", currentHolder: 3 },
-    { id: 7, name: "Mercedes Sprinter", plate: "PQR-901", type: "van", status: "available", currentHolder: null },
-    { id: 8, name: "Volkswagen Golf", plate: "STU-234", type: "sedan", status: "available", currentHolder: null }
+    { id: 1, name: "Toyota Camry", plate: "CA 123-456", type: "sedan", status: "available", currentHolder: null },
+    { id: 2, name: "Honda CR-V", plate: "GP 789 ABC", type: "suv", status: "in-use", currentHolder: 1 },
+    { id: 3, name: "Ford F-150", plate: "NW 456-789", type: "truck", status: "available", currentHolder: null },
+    { id: 4, name: "Nissan Altima", plate: "FS 012-345", type: "sedan", status: "in-use", currentHolder: 2 },
+    { id: 5, name: "Chevy Tahoe", plate: "KZN 345 XYZ", type: "suv", status: "available", currentHolder: null },
+    { id: 6, name: "BMW X5", plate: "EC 678-901", type: "suv", status: "in-use", currentHolder: 3 },
+    { id: 7, name: "Mercedes Sprinter", plate: "WC 901-234", type: "van", status: "available", currentHolder: null },
+    { id: 8, name: "Volkswagen Golf", plate: "LIM 234-567", type: "sedan", status: "available", currentHolder: null }
 ];
 
 let activityLog = [
@@ -251,13 +251,13 @@ function createKeyCard(vehicle, isAdmin, isDisabled = false) {
 
 function getVehicleIcon(type) {
     const icons = {
-        sedan: '🚗',
-        suv: '🚙',
-        truck: '🚚',
-        van: '🚐',
-        motorcycle: '🏍️'
+        sedan: '<i class="fa-solid fa-car-side"></i>',
+        suv: '<i class="fa-solid fa-truck-monster"></i>',
+        truck: '<i class="fa-solid fa-truck"></i>',
+        van: '<i class="fa-solid fa-van-shuttle"></i>',
+        motorcycle: '<i class="fa-solid fa-motorcycle"></i>'
     };
-    return icons[type] || '🚗';
+    return icons[type] || '<i class="fa-solid fa-car-side"></i>';
 }
 
 // Key Actions
