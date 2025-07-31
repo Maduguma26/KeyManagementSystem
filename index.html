@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle Key Management System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Authentication Screen -->
+    <div id="authScreen" class="auth-container">
+        <h2 class="auth-title">
+            <i class="fas fa-key"></i> Vehicle Key Management
+        </h2>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" required>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </button>
+        </form>
+        <div class="demo-credentials">
+            <p><strong>Demo Credentials:</strong></p>
+            <p>Admin: admin / admin123</p>
+            <p>User: john.doe / user123</p>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div id="dashboard" class="container hidden">
+        <div class="header">
+            <div class="logo">
+                <i class="fas fa-car-alt"></i> VehicleKey Pro
+            </div>
+            <div class="user-info">
+                <span id="currentUser"></span>
+                <button class="btn btn-secondary" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </div>
+
+        <!-- Admin Dashboard -->
+        <div id="adminDashboard" class="hidden">
+            <div class="nav-tabs">
+                <div class="nav-tab active" onclick="switchTab('overview')">
+                    <i class="fas fa-tachometer-alt"></i> Overview
+                </div>
+                <div class="nav-tab" onclick="switchTab('users')">
+                    <i class="fas fa-users"></i> Users
+                </div>
+                <div class="nav-tab" onclick="switchTab('vehicles')">
+                    <i class="fas fa-car"></i> Vehicles
+                </div>
+                <div class="nav-tab" onclick="switchTab('activity')">
+                    <i class="fas fa-history"></i> Activity Log
+                </div>
+            </div>
+
+            <div id="overviewTab">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalKeys">8</div>
+                        <div class="stat-label">Total Keys</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="availableKeys">5</div>
+                        <div class="stat-label">Available</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="keysInUse">3</div>
+                        <div class="stat-label">In Use</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalUsers">4</div>
+                        <div class="stat-label">Total Users</div>
+                    </div>
+                </div>
+
+                <h3 class="section-title">Key Status Overview</h3>
+                <div class="key-grid" id="adminKeyGrid"></div>
+            </div>
+
+            <div id="usersTab" class="hidden">
+                <div class="section-header">
+                    <h3 class="section-title">User Management</h3>
+                    <button class="btn btn-primary" onclick="showAddUserModal()">
+                        <i class="fas fa-user-plus"></i> Add User
+                    </button>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Username</th>
+                            <th>Role</th>
+                            <th>Authorized Vehicles</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody"></tbody>
+                </table>
+            </div>
+
+            <div id="vehiclesTab" class="hidden">
+                <div class="section-header">
+                    <h3 class="section-title">Vehicle Management</h3>
+                    <button class="btn btn-primary" onclick="showAddVehicleModal()">
+                        <i class="fas fa-car-side"></i> Add Vehicle
+                    </button>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Vehicle Name</th>
+                            <th>License Plate</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Current Holder</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="vehiclesTableBody"></tbody>
+                </table>
+            </div>
+
+            <div id="activityTab" class="hidden">
+                <h3 class="section-title">Activity Log</h3>
+                <div class="activity-log" id="activityLog"></div>
+            </div>
+        </div>
+
+        <!-- User Dashboard -->
+        <div id="userDashboard" class="hidden">
+            <div class="dashboard">
+                <div class="sidebar">
+                    <h3 class="section-title">
+                        <i class="fas fa-user-circle"></i> My Profile
+                    </h3>
+                    <div id="userProfile"></div>
+                    
+                    <h3 class="section-title">
+                        <i class="fas fa-key"></i> Current Key
+                    </h3>
+                    <div id="currentKeyInfo">
+                        <p class="no-key-message">No key currently held</p>
+                    </div>
+                </div>
+                <div class="main-content">
+                    <h3 class="section-title">
+                        <i class="fas fa-key"></i> Available Keys
+                    </h3>
+                    <div class="key-grid" id="userKeyGrid"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="keyModal" class="modal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModal('keyModal')">&times;</button>
+            <div id="keyModalContent"></div>
+        </div>
+    </div>
+
+    <div id="addUserModal" class="modal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModal('addUserModal')">&times;</button>
+            <h3 class="modal-title">
+                <i class="fas fa-user-plus"></i> Add New User
+            </h3>
+            <form id="addUserForm">
+                <div class="form-group">
+                    <label for="newUserName">Full Name</label>
+                    <input type="text" id="newUserName" required>
+                </div>
+                <div class="form-group">
+                    <label for="newUsername">Username</label>
+                    <input type="text" id="newUsername" required>
+                </div>
+                <div class="form-group">
+                    <label for="newUserPassword">Password</label>
+                    <input type="password" id="newUserPassword" required>
+                </div>
+                <div class="form-group">
+                    <label for="newUserRole">Role</label>
+                    <select id="newUserRole" required>
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Add User
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="addVehicleModal" class="modal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModal('addVehicleModal')">&times;</button>
+            <h3 class="modal-title">
+                <i class="fas fa-car-side"></i> Add New Vehicle
+            </h3>
+            <form id="addVehicleForm">
+                <div class="form-group">
+                    <label for="newVehicleName">Vehicle Name</label>
+                    <input type="text" id="newVehicleName" required>
+                </div>
+                <div class="form-group">
+                    <label for="newVehiclePlate">License Plate</label>
+                    <input type="text" id="newVehiclePlate" required>
+                </div>
+                <div class="form-group">
+                    <label for="newVehicleType">Vehicle Type</label>
+                    <select id="newVehicleType" required>
+                        <option value="sedan">Sedan</option>
+                        <option value="suv">SUV</option>
+                        <option value="truck">Truck</option>
+                        <option value="van">Van</option>
+                        <option value="motorcycle">Motorcycle</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Add Vehicle
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
