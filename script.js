@@ -1,61 +1,35 @@
-// Sample Data
-const users = [
-    { id: 1, name: "Admin User", username: "admin", password: "admin123", role: "admin" },
-    { id: 2, name: "John Doe", username: "john.doe", password: "user123", role: "user" },
-    { id: 3, name: "Jane Smith", username: "jane.smith", password: "user123", role: "user" },
-    { id: 4, name: "Mike Johnson", username: "mike.johnson", password: "user123", role: "user" }
+// Sample data
+let users = [
+    { id: 1, name: "John Doe", username: "john.doe", password: "user123", role: "user", authorizedVehicles: [1, 2, 3] },
+    { id: 2, name: "Jane Smith", username: "jane.smith", password: "user123", role: "user", authorizedVehicles: [2, 4, 5] },
+    { id: 3, name: "Mike Johnson", username: "mike.johnson", password: "user123", role: "user", authorizedVehicles: [1, 6] },
+    { id: 4, name: "Admin User", username: "admin", password: "admin123", role: "admin", authorizedVehicles: [] }
 ];
 
-const vehicles = [
-    { id: 1, name: "Company Sedan", plate: "ABC123", type: "sedan", status: "available" },
-    { id: 2, name: "Marketing SUV", plate: "XYZ789", type: "suv", status: "available" },
-    { id: 3, name: "Delivery Van", plate: "VAN456", type: "van", status: "in-use", holder: "John Doe" },
-    { id: 4, name: "Service Truck", plate: "TRK789", type: "truck", status: "available" },
-    { id: 5, name: "Executive Car", plate: "EXE001", type: "sedan", status: "in-use", holder: "Jane Smith" },
-    { id: 6, name: "Sales SUV", plate: "SAL002", type: "suv", status: "available" },
-    { id: 7, name: "Maintenance Van", plate: "MNT003", type: "van", status: "in-use", holder: "Mike Johnson" },
-    { id: 8, name: "Manager's Car", plate: "MGR004", type: "sedan", status: "available" }
+let vehicles = [
+    { id: 1, name: "Toyota Camry", plate: "ABC-123", type: "sedan", status: "available", currentHolder: null },
+    { id: 2, name: "Honda CR-V", plate: "XYZ-789", type: "suv", status: "in-use", currentHolder: 1 },
+    { id: 3, name: "Ford F-150", plate: "DEF-456", type: "truck", status: "available", currentHolder: null },
+    { id: 4, name: "Nissan Altima", plate: "GHI-012", type: "sedan", status: "in-use", currentHolder: 2 },
+    { id: 5, name: "Chevy Tahoe", plate: "JKL-345", type: "suv", status: "available", currentHolder: null },
+    { id: 6, name: "BMW X5", plate: "MNO-678", type: "suv", status: "in-use", currentHolder: 3 },
+    { id: 7, name: "Mercedes Sprinter", plate: "PQR-901", type: "van", status: "available", currentHolder: null },
+    { id: 8, name: "Volkswagen Golf", plate: "STU-234", type: "sedan", status: "available", currentHolder: null }
 ];
 
-const activityLog = [
-    { id: 1, action: "login", user: "admin", time: "2023-06-15 09:30:00" },
-    { id: 2, action: "check-out", user: "John Doe", vehicle: "Delivery Van", time: "2023-06-15 10:15:00" },
-    { id: 3, action: "check-out", user: "Jane Smith", vehicle: "Executive Car", time: "2023-06-15 10:30:00" },
-    { id: 4, action: "check-out", user: "Mike Johnson", vehicle: "Maintenance Van", time: "2023-06-15 11:00:00" },
-    { id: 5, action: "login", user: "john.doe", time: "2023-06-15 08:45:00" }
+let activityLog = [
+    { timestamp: new Date(Date.now() - 3600000), user: "John Doe", action: "picked up", vehicle: "Honda CR-V" },
+    { timestamp: new Date(Date.now() - 7200000), user: "Jane Smith", action: "returned", vehicle: "Toyota Camry" },
+    { timestamp: new Date(Date.now() - 10800000), user: "Mike Johnson", action: "picked up", vehicle: "BMW X5" },
+    { timestamp: new Date(Date.now() - 14400000), user: "Jane Smith", action: "picked up", vehicle: "Nissan Altima" }
 ];
 
 let currentUser = null;
+let currentTab = 'overview';
 
-// DOM Elements
-const authScreen = document.getElementById('authScreen');
-const dashboard = document.getElementById('dashboard');
-const loginForm = document.getElementById('loginForm');
-const currentUserSpan = document.getElementById('currentUser');
-const adminDashboard = document.getElementById('adminDashboard');
-const userDashboard = document.getElementById('userDashboard');
-const adminKeyGrid = document.getElementById('adminKeyGrid');
-const userKeyGrid = document.getElementById('userKeyGrid');
-const usersTableBody = document.getElementById('usersTableBody');
-const vehiclesTableBody = document.getElementById('vehiclesTableBody');
-const activityLogElement = document.getElementById('activityLog');
-const userProfile = document.getElementById('userProfile');
-const currentKeyInfo = document.getElementById('currentKeyInfo');
-
-// Initialize the app
-document.addEventListener('DOMContentLoaded', () => {
-    // Check if user is already logged in
-    const storedUser = localStorage.getItem('currentUser');
-    if (storedUser) {
-        currentUser = JSON.parse(storedUser);
-        showDashboard();
-    }
-});
-
-// Login Form Submission
-loginForm.addEventListener('submit', (e) => {
+// Authentication
+document.getElementById('loginForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
     
@@ -63,483 +37,538 @@ loginForm.addEventListener('submit', (e) => {
     
     if (user) {
         currentUser = user;
-        localStorage.setItem('currentUser', JSON.stringify(user));
-        showDashboard();
+        document.getElementById('authScreen').classList.add('hidden');
+        document.getElementById('dashboard').classList.remove('hidden');
+        document.getElementById('currentUser').textContent = user.name;
+        
+        if (user.role === 'admin') {
+            document.getElementById('adminDashboard').classList.remove('hidden');
+            loadAdminDashboard();
+        } else {
+            document.getElementById('userDashboard').classList.remove('hidden');
+            loadUserDashboard();
+        }
     } else {
-        alert('Invalid username or password');
+        alert('Invalid credentials');
     }
 });
 
-// Show Dashboard based on user role
-function showDashboard() {
-    authScreen.classList.add('hidden');
-    dashboard.classList.remove('hidden');
-    
-    currentUserSpan.textContent = currentUser.name;
-    
-    if (currentUser.role === 'admin') {
-        adminDashboard.classList.remove('hidden');
-        userDashboard.classList.add('hidden');
-        renderAdminDashboard();
-    } else {
-        adminDashboard.classList.add('hidden');
-        userDashboard.classList.remove('hidden');
-        renderUserDashboard();
-    }
+function logout() {
+    currentUser = null;
+    document.getElementById('authScreen').classList.remove('hidden');
+    document.getElementById('dashboard').classList.add('hidden');
+    document.getElementById('adminDashboard').classList.add('hidden');
+    document.getElementById('userDashboard').classList.add('hidden');
+    document.getElementById('loginForm').reset();
 }
 
-// Render Admin Dashboard
-function renderAdminDashboard() {
-    renderAdminKeyGrid();
-    renderUsersTable();
-    renderVehiclesTable();
-    renderActivityLog();
+// Admin Dashboard Functions
+function loadAdminDashboard() {
     updateStats();
+    loadAdminKeyGrid();
+    loadUsersTable();
+    loadVehiclesTable();
+    loadActivityLog();
 }
 
-// Render User Dashboard
-function renderUserDashboard() {
-    renderUserKeyGrid();
-    renderUserProfile();
-    renderCurrentKey();
-}
-
-// Render Admin Key Grid
-function renderAdminKeyGrid() {
-    adminKeyGrid.innerHTML = '';
-    
-    vehicles.forEach(vehicle => {
-        const keyCard = document.createElement('div');
-        keyCard.className = `key-card ${vehicle.status === 'available' ? 'available' : 'in-use'}`;
-        
-        const icon = document.createElement('i');
-        icon.className = 'key-icon fas fa-key';
-        
-        const name = document.createElement('div');
-        name.className = 'vehicle-name';
-        name.textContent = vehicle.name;
-        
-        const plate = document.createElement('div');
-        plate.className = 'vehicle-plate';
-        plate.textContent = vehicle.plate;
-        
-        const status = document.createElement('div');
-        status.className = `key-status status-${vehicle.status === 'available' ? 'available' : 'in-use'}`;
-        status.textContent = vehicle.status === 'available' ? 'Available' : 'In Use';
-        
-        const button = document.createElement('button');
-        button.className = `btn btn-${vehicle.status === 'available' ? 'primary' : 'danger'}`;
-        button.innerHTML = `<i class="fas fa-${vehicle.status === 'available' ? 'key' : 'key'}"></i> ${vehicle.status === 'available' ? 'Check Out' : 'Check In'}`;
-        
-        button.addEventListener('click', () => {
-            if (vehicle.status === 'available') {
-                vehicle.status = 'in-use';
-                vehicle.holder = currentUser.name;
-                activityLog.unshift({
-                    id: activityLog.length + 1,
-                    action: 'check-out',
-                    user: currentUser.name,
-                    vehicle: vehicle.name,
-                    time: new Date().toLocaleString()
-                });
-            } else {
-                vehicle.status = 'available';
-                delete vehicle.holder;
-                activityLog.unshift({
-                    id: activityLog.length + 1,
-                    action: 'check-in',
-                    user: currentUser.name,
-                    vehicle: vehicle.name,
-                    time: new Date().toLocaleString()
-                });
-            }
-            renderAdminDashboard();
-        });
-        
-        keyCard.appendChild(icon);
-        keyCard.appendChild(name);
-        keyCard.appendChild(plate);
-        keyCard.appendChild(status);
-        keyCard.appendChild(button);
-        
-        adminKeyGrid.appendChild(keyCard);
-    });
-}
-
-// Render User Key Grid
-function renderUserKeyGrid() {
-    userKeyGrid.innerHTML = '';
-    
-    vehicles.forEach(vehicle => {
-        const keyCard = document.createElement('div');
-        keyCard.className = `key-card ${vehicle.status === 'available' ? 'available' : vehicle.holder === currentUser.name ? 'in-use' : 'unauthorized'}`;
-        
-        const icon = document.createElement('i');
-        icon.className = 'key-icon fas fa-key';
-        
-        const name = document.createElement('div');
-        name.className = 'vehicle-name';
-        name.textContent = vehicle.name;
-        
-        const plate = document.createElement('div');
-        plate.className = 'vehicle-plate';
-        plate.textContent = vehicle.plate;
-        
-        const status = document.createElement('div');
-        status.className = `key-status status-${vehicle.status === 'available' ? 'available' : vehicle.holder === currentUser.name ? 'in-use' : 'unauthorized'}`;
-        status.textContent = vehicle.status === 'available' ? 'Available' : vehicle.holder === currentUser.name ? 'In Use (You)' : 'Unavailable';
-        
-        const button = document.createElement('button');
-        if (vehicle.status === 'available') {
-            button.className = 'btn btn-primary';
-            button.innerHTML = '<i class="fas fa-key"></i> Check Out';
-            button.addEventListener('click', () => {
-                vehicle.status = 'in-use';
-                vehicle.holder = currentUser.name;
-                activityLog.unshift({
-                    id: activityLog.length + 1,
-                    action: 'check-out',
-                    user: currentUser.name,
-                    vehicle: vehicle.name,
-                    time: new Date().toLocaleString()
-                });
-                renderUserDashboard();
-            });
-        } else if (vehicle.holder === currentUser.name) {
-            button.className = 'btn btn-danger';
-            button.innerHTML = '<i class="fas fa-key"></i> Check In';
-            button.addEventListener('click', () => {
-                vehicle.status = 'available';
-                delete vehicle.holder;
-                activityLog.unshift({
-                    id: activityLog.length + 1,
-                    action: 'check-in',
-                    user: currentUser.name,
-                    vehicle: vehicle.name,
-                    time: new Date().toLocaleString()
-                });
-                renderUserDashboard();
-            });
-        } else {
-            button.className = 'btn btn-secondary';
-            button.innerHTML = '<i class="fas fa-ban"></i> Unavailable';
-            button.disabled = true;
-        }
-        
-        keyCard.appendChild(icon);
-        keyCard.appendChild(name);
-        keyCard.appendChild(plate);
-        keyCard.appendChild(status);
-        keyCard.appendChild(button);
-        
-        userKeyGrid.appendChild(keyCard);
-    });
-}
-
-// Render Users Table
-function renderUsersTable() {
-    usersTableBody.innerHTML = '';
-    
-    users.forEach(user => {
-        const row = document.createElement('tr');
-        
-        const nameCell = document.createElement('td');
-        nameCell.textContent = user.name;
-        
-        const usernameCell = document.createElement('td');
-        usernameCell.textContent = user.username;
-        
-        const roleCell = document.createElement('td');
-        roleCell.textContent = user.role.charAt(0).toUpperCase() + user.role.slice(1);
-        
-        const vehiclesCell = document.createElement('td');
-        const userVehicles = vehicles.filter(v => v.holder === user.name);
-        vehiclesCell.textContent = userVehicles.length > 0 ? 
-            userVehicles.map(v => v.name).join(', ') : 'None';
-        
-        const actionsCell = document.createElement('td');
-        const actionsDiv = document.createElement('div');
-        actionsDiv.className = 'action-buttons';
-        
-        const editButton = document.createElement('button');
-        editButton.className = 'btn btn-secondary';
-        editButton.innerHTML = '<i class="fas fa-edit"></i>';
-        editButton.addEventListener('click', () => showEditUserModal(user));
-        
-        const deleteButton = document.createElement('button');
-        deleteButton.className = 'btn btn-danger';
-        deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
-        deleteButton.addEventListener('click', () => deleteUser(user.id));
-        
-        actionsDiv.appendChild(editButton);
-        actionsDiv.appendChild(deleteButton);
-        actionsCell.appendChild(actionsDiv);
-        
-        row.appendChild(nameCell);
-        row.appendChild(usernameCell);
-        row.appendChild(roleCell);
-        row.appendChild(vehiclesCell);
-        row.appendChild(actionsCell);
-        
-        usersTableBody.appendChild(row);
-    });
-}
-
-// Render Vehicles Table
-function renderVehiclesTable() {
-    vehiclesTableBody.innerHTML = '';
-    
-    vehicles.forEach(vehicle => {
-        const row = document.createElement('tr');
-        
-        const nameCell = document.createElement('td');
-        nameCell.textContent = vehicle.name;
-        
-        const plateCell = document.createElement('td');
-        plateCell.textContent = vehicle.plate;
-        
-        const typeCell = document.createElement('td');
-        typeCell.textContent = vehicle.type.charAt(0).toUpperCase() + vehicle.type.slice(1);
-        
-        const statusCell = document.createElement('td');
-        const statusSpan = document.createElement('span');
-        statusSpan.className = `status-${vehicle.status === 'available' ? 'available' : 'in-use'}`;
-        statusSpan.textContent = vehicle.status === 'available' ? 'Available' : 'In Use';
-        statusCell.appendChild(statusSpan);
-        
-        const holderCell = document.createElement('td');
-        holderCell.textContent = vehicle.holder || '-';
-        
-        const actionsCell = document.createElement('td');
-        const actionsDiv = document.createElement('div');
-        actionsDiv.className = 'action-buttons';
-        
-        const editButton = document.createElement('button');
-        editButton.className = 'btn btn-secondary';
-        editButton.innerHTML = '<i class="fas fa-edit"></i>';
-        editButton.addEventListener('click', () => showEditVehicleModal(vehicle));
-        
-        const deleteButton = document.createElement('button');
-        deleteButton.className = 'btn btn-danger';
-        deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
-        deleteButton.addEventListener('click', () => deleteVehicle(vehicle.id));
-        
-        actionsDiv.appendChild(editButton);
-        actionsDiv.appendChild(deleteButton);
-        actionsCell.appendChild(actionsDiv);
-        
-        row.appendChild(nameCell);
-        row.appendChild(plateCell);
-        row.appendChild(typeCell);
-        row.appendChild(statusCell);
-        row.appendChild(holderCell);
-        row.appendChild(actionsCell);
-        
-        vehiclesTableBody.appendChild(row);
-    });
-}
-
-// Render Activity Log
-function renderActivityLog() {
-    activityLogElement.innerHTML = '';
-    
-    activityLog.forEach(activity => {
-        const item = document.createElement('div');
-        item.className = 'activity-item';
-        
-        const action = document.createElement('div');
-        let actionText = '';
-        
-        switch(activity.action) {
-            case 'login':
-                actionText = `${activity.user} logged in`;
-                break;
-            case 'check-out':
-                actionText = `${activity.user} checked out ${activity.vehicle}`;
-                break;
-            case 'check-in':
-                actionText = `${activity.user} checked in ${activity.vehicle}`;
-                break;
-            default:
-                actionText = activity.action;
-        }
-        
-        action.textContent = actionText;
-        
-        const time = document.createElement('div');
-        time.className = 'activity-time';
-        time.textContent = activity.time;
-        
-        item.appendChild(action);
-        item.appendChild(time);
-        
-        activityLogElement.appendChild(item);
-    });
-}
-
-// Render User Profile
-function renderUserProfile() {
-    userProfile.innerHTML = `
-        <div class="profile-info">
-            <p><strong>Name:</strong> ${currentUser.name}</p>
-            <p><strong>Username:</strong> ${currentUser.username}</p>
-            <p><strong>Role:</strong> ${currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1)}</p>
-        </div>
-    `;
-}
-
-// Render Current Key
-function renderCurrentKey() {
-    const userVehicle = vehicles.find(v => v.holder === currentUser.name);
-    
-    if (userVehicle) {
-        currentKeyInfo.innerHTML = `
-            <div class="current-key">
-                <div class="vehicle-name">${userVehicle.name}</div>
-                <div class="vehicle-plate">${userVehicle.plate}</div>
-                <div class="vehicle-type">${userVehicle.type.charAt(0).toUpperCase() + userVehicle.type.slice(1)}</div>
-                <button class="btn btn-danger" onclick="checkInVehicle(${userVehicle.id})">
-                    <i class="fas fa-key"></i> Check In
-                </button>
-            </div>
-        `;
-    } else {
-        currentKeyInfo.innerHTML = '<p class="no-key-message">No key currently held</p>';
-    }
-}
-
-// Check In Vehicle
-function checkInVehicle(vehicleId) {
-    const vehicle = vehicles.find(v => v.id === vehicleId);
-    if (vehicle) {
-        vehicle.status = 'available';
-        delete vehicle.holder;
-        activityLog.unshift({
-            id: activityLog.length + 1,
-            action: 'check-in',
-            user: currentUser.name,
-            vehicle: vehicle.name,
-            time: new Date().toLocaleString()
-        });
-        renderUserDashboard();
-    }
-}
-
-// Update Stats
 function updateStats() {
     document.getElementById('totalKeys').textContent = vehicles.length;
     document.getElementById('availableKeys').textContent = vehicles.filter(v => v.status === 'available').length;
     document.getElementById('keysInUse').textContent = vehicles.filter(v => v.status === 'in-use').length;
-    document.getElementById('totalUsers').textContent = users.length;
+    document.getElementById('totalUsers').textContent = users.filter(u => u.role === 'user').length;
 }
 
-// Switch Tabs
-function switchTab(tabName) {
-    document.querySelectorAll('.nav-tab').forEach(tab => {
-        tab.classList.remove('active');
+function loadAdminKeyGrid() {
+    const grid = document.getElementById('adminKeyGrid');
+    grid.innerHTML = '';
+    
+    vehicles.forEach(vehicle => {
+        const keyCard = createKeyCard(vehicle, true);
+        grid.appendChild(keyCard);
     });
-    
-    document.querySelectorAll('#adminDashboard > div').forEach(tab => {
-        tab.classList.add('hidden');
-    });
-    
-    document.querySelector(`.nav-tab:nth-child(${
-        ['overview', 'users', 'vehicles', 'activity'].indexOf(tabName) + 1
-    })`).classList.add('active');
-    
-    document.getElementById(`${tabName}Tab`).classList.remove('hidden');
 }
 
-// Show Add User Modal
+function loadUsersTable() {
+    const tbody = document.getElementById('usersTableBody');
+    tbody.innerHTML = '';
+    
+    users.filter(u => u.role === 'user').forEach(user => {
+        const tr = document.createElement('tr');
+        const authorizedVehicleNames = user.authorizedVehicles
+            .map(id => vehicles.find(v => v.id === id)?.name)
+            .filter(name => name)
+            .join(', ');
+        
+        tr.innerHTML = `
+            <td>${user.name}</td>
+            <td>${user.username}</td>
+            <td><span style="background: #bee3f8; color: #2b6cb0; padding: 4px 8px; border-radius: 12px; font-size: 12px;">${user.role}</span></td>
+            <td>${authorizedVehicleNames}</td>
+            <td>
+                <button class="btn btn-secondary" style="padding: 5px 10px; font-size: 12px;" onclick="editUserPermissions(${user.id})">Edit Permissions</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function loadVehiclesTable() {
+    const tbody = document.getElementById('vehiclesTableBody');
+    tbody.innerHTML = '';
+    
+    vehicles.forEach(vehicle => {
+        const tr = document.createElement('tr');
+        const currentHolderName = vehicle.currentHolder 
+            ? users.find(u => u.id === vehicle.currentHolder)?.name || 'Unknown'
+            : '-';
+        
+        tr.innerHTML = `
+            <td>${vehicle.name}</td>
+            <td>${vehicle.plate}</td>
+            <td><span style="text-transform: capitalize;">${vehicle.type}</span></td>
+            <td><span class="status-${vehicle.status}">${vehicle.status === 'in-use' ? 'In Use' : 'Available'}</span></td>
+            <td>${currentHolderName}</td>
+            <td>
+                <button class="btn btn-secondary" style="padding: 5px 10px; font-size: 12px;" onclick="editVehicle(${vehicle.id})">Edit</button>
+                ${vehicle.status === 'in-use' ? `<button class="btn btn-danger" style="padding: 5px 10px; font-size: 12px; margin-left: 5px;" onclick="forceReturn(${vehicle.id})">Force Return</button>` : ''}
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function loadActivityLog() {
+    const log = document.getElementById('activityLog');
+    log.innerHTML = '';
+    
+    activityLog.sort((a, b) => b.timestamp - a.timestamp).forEach(activity => {
+        const div = document.createElement('div');
+        div.className = 'activity-item';
+        div.innerHTML = `
+            <div>
+                <strong>${activity.user}</strong> ${activity.action} <strong>${activity.vehicle}</strong>
+            </div>
+            <div class="activity-time">${activity.timestamp.toLocaleString()}</div>
+        `;
+        log.appendChild(div);
+    });
+}
+
+// User Dashboard Functions
+function loadUserDashboard() {
+    loadUserProfile();
+    loadUserKeyGrid();
+    updateCurrentKeyInfo();
+}
+
+function loadUserProfile() {
+    const profile = document.getElementById('userProfile');
+    profile.innerHTML = `
+        <p><strong>Name:</strong> ${currentUser.name}</p>
+        <p><strong>Username:</strong> ${currentUser.username}</p>
+        <p><strong>Authorized Vehicles:</strong> ${currentUser.authorizedVehicles.length}</p>
+    `;
+}
+
+function loadUserKeyGrid() {
+    const grid = document.getElementById('userKeyGrid');
+    grid.innerHTML = '';
+    
+    vehicles.forEach(vehicle => {
+        const isAuthorized = currentUser.authorizedVehicles.includes(vehicle.id);
+        const isCurrentlyHeld = vehicle.currentHolder === currentUser.id;
+        const hasAnyKey = vehicles.some(v => v.currentHolder === currentUser.id);
+        
+        if (isAuthorized || isCurrentlyHeld) {
+            const keyCard = createKeyCard(vehicle, false, hasAnyKey && !isCurrentlyHeld);
+            grid.appendChild(keyCard);
+        }
+    });
+}
+
+function updateCurrentKeyInfo() {
+    const currentKeyDiv = document.getElementById('currentKeyInfo');
+    const heldVehicle = vehicles.find(v => v.currentHolder === currentUser.id);
+    
+    if (heldVehicle) {
+        currentKeyDiv.innerHTML = `
+            <div style="background: #fed7d7; padding: 15px; border-radius: 8px; border-left: 4px solid #e53e3e;">
+                <p><strong>${heldVehicle.name}</strong></p>
+                <p style="font-size: 14px; color: #742a2a;">${heldVehicle.plate}</p>
+                <button class="btn btn-danger" style="margin-top: 10px; width: 100%;" onclick="returnKey(${heldVehicle.id})">Return Key</button>
+            </div>
+        `;
+    } else {
+        currentKeyDiv.innerHTML = '<p style="color: #718096;">No key currently held</p>';
+    }
+}
+
+// Key Card Creation
+function createKeyCard(vehicle, isAdmin, isDisabled = false) {
+    const div = document.createElement('div');
+    let statusClass = 'available';
+    let statusText = 'Available';
+    
+    if (vehicle.status === 'in-use') {
+        statusClass = 'in-use';
+        statusText = 'In Use';
+    }
+    
+    if (!isAdmin && !currentUser.authorizedVehicles.includes(vehicle.id) && vehicle.currentHolder !== currentUser.id) {
+        statusClass = 'unauthorized';
+        statusText = 'Unauthorized';
+    }
+    
+    if (isDisabled) {
+        statusClass = 'unauthorized';
+    }
+    
+    div.className = `key-card ${statusClass}`;
+    if (isDisabled) div.style.pointerEvents = 'none';
+    
+    const vehicleIcon = getVehicleIcon(vehicle.type);
+    const currentHolderName = vehicle.currentHolder 
+        ? users.find(u => u.id === vehicle.currentHolder)?.name || 'Unknown'
+        : null;
+    
+    div.innerHTML = `
+        <div class="key-icon">${vehicleIcon}</div>
+        <div class="vehicle-name">${vehicle.name}</div>
+        <div class="vehicle-plate">${vehicle.plate}</div>
+        <div class="key-status status-${statusClass.replace('-', '')}">${statusText}</div>
+        ${currentHolderName ? `<div style="font-size: 12px; color: #718096;">Held by: ${currentHolderName}</div>` : ''}
+        ${!isAdmin && statusClass === 'available' && !isDisabled ? `<button class="btn btn-success" onclick="pickupKey(${vehicle.id})" style="margin-top: 10px;">Pick Up</button>` : ''}
+        ${!isAdmin && vehicle.currentHolder === currentUser.id ? `<button class="btn btn-danger" onclick="returnKey(${vehicle.id})" style="margin-top: 10px;">Return Key</button>` : ''}
+    `;
+    
+    if (isAdmin) {
+        div.onclick = () => showKeyDetails(vehicle.id);
+        div.style.cursor = 'pointer';
+    }
+    
+    return div;
+}
+
+function getVehicleIcon(type) {
+    const icons = {
+        sedan: '🚗',
+        suv: '🚙',
+        truck: '🚚',
+        van: '🚐',
+        motorcycle: '🏍️'
+    };
+    return icons[type] || '🚗';
+}
+
+// Key Actions
+function pickupKey(vehicleId) {
+    const vehicle = vehicles.find(v => v.id === vehicleId);
+    const hasAnyKey = vehicles.some(v => v.currentHolder === currentUser.id);
+    
+    if (hasAnyKey) {
+        alert('You can only hold one key at a time. Please return your current key first.');
+        return;
+    }
+    
+    if (vehicle && vehicle.status === 'available' && currentUser.authorizedVehicles.includes(vehicleId)) {
+        vehicle.status = 'in-use';
+        vehicle.currentHolder = currentUser.id;
+        
+        // Add to activity log
+        activityLog.push({
+            timestamp: new Date(),
+            user: currentUser.name,
+            action: 'picked up',
+            vehicle: vehicle.name
+        });
+        
+        alert(`Successfully picked up key for ${vehicle.name}`);
+        
+        if (currentUser.role === 'admin') {
+            loadAdminDashboard();
+        } else {
+            loadUserDashboard();
+        }
+    }
+}
+
+function returnKey(vehicleId) {
+    const vehicle = vehicles.find(v => v.id === vehicleId);
+    
+    if (vehicle && vehicle.currentHolder === currentUser.id) {
+        vehicle.status = 'available';
+        vehicle.currentHolder = null;
+        
+        // Add to activity log
+        activityLog.push({
+            timestamp: new Date(),
+            user: currentUser.name,
+            action: 'returned',
+            vehicle: vehicle.name
+        });
+        
+        alert(`Successfully returned key for ${vehicle.name}`);
+        
+        if (currentUser.role === 'admin') {
+            loadAdminDashboard();
+        } else {
+            loadUserDashboard();
+        }
+    }
+}
+
+function forceReturn(vehicleId) {
+    const vehicle = vehicles.find(v => v.id === vehicleId);
+    const holder = users.find(u => u.id === vehicle.currentHolder);
+    
+    if (confirm(`Force return key for ${vehicle.name} from ${holder?.name}?`)) {
+        vehicle.status = 'available';
+        vehicle.currentHolder = null;
+        
+        // Add to activity log
+        activityLog.push({
+            timestamp: new Date(),
+            user: 'Admin',
+            action: 'force returned',
+            vehicle: vehicle.name
+        });
+        
+        loadAdminDashboard();
+    }
+}
+
+// Modal Functions
+function showKeyDetails(vehicleId) {
+    const vehicle = vehicles.find(v => v.id === vehicleId);
+    const holder = vehicle.currentHolder ? users.find(u => u.id === vehicle.currentHolder) : null;
+    const authorizedUsers = users.filter(u => u.authorizedVehicles.includes(vehicleId));
+    
+    const content = document.getElementById('keyModalContent');
+    content.innerHTML = `
+        <h3>${vehicle.name} - Key Details</h3>
+        <p><strong>License Plate:</strong> ${vehicle.plate}</p>
+        <p><strong>Type:</strong> ${vehicle.type}</p>
+        <p><strong>Status:</strong> ${vehicle.status}</p>
+        ${holder ? `<p><strong>Current Holder:</strong> ${holder.name}</p>` : ''}
+        <h4 style="margin-top: 20px;">Authorized Users:</h4>
+        <ul style="margin: 10px 0;">
+            ${authorizedUsers.map(user => `<li>${user.name} (${user.username})</li>`).join('')}
+        </ul>
+        ${vehicle.status === 'in-use' ? `<button class="btn btn-danger" onclick="forceReturn(${vehicleId}); closeModal('keyModal');" style="margin-top: 15px;">Force Return</button>` : ''}
+    `;
+    
+    document.getElementById('keyModal').style.display = 'block';
+}
+
 function showAddUserModal() {
     document.getElementById('addUserModal').style.display = 'block';
 }
 
-// Show Add Vehicle Modal
 function showAddVehicleModal() {
     document.getElementById('addVehicleModal').style.display = 'block';
 }
 
-// Close Modal
 function closeModal(modalId) {
     document.getElementById(modalId).style.display = 'none';
 }
 
-// Add User Form Submission
-document.getElementById('addUserForm').addEventListener('submit', (e) => {
+// Tab Management
+function switchTab(tabName) {
+    // Hide all tabs
+    document.querySelectorAll('#adminDashboard > div[id$="Tab"]').forEach(tab => {
+        tab.classList.add('hidden');
+    });
+    
+    // Show selected tab
+    document.getElementById(tabName + 'Tab').classList.remove('hidden');
+    
+    // Update active tab styling
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    
+    currentTab = tabName;
+}
+
+// Form Handlers
+document.getElementById('addUserForm').addEventListener('submit', function(e) {
     e.preventDefault();
     
     const newUser = {
-        id: users.length + 1,
+        id: Math.max(...users.map(u => u.id)) + 1,
         name: document.getElementById('newUserName').value,
         username: document.getElementById('newUsername').value,
         password: document.getElementById('newUserPassword').value,
-        role: document.getElementById('newUserRole').value
+        role: document.getElementById('newUserRole').value,
+        authorizedVehicles: []
     };
+    
+    // Check if username already exists
+    if (users.find(u => u.username === newUser.username)) {
+        alert('Username already exists');
+        return;
+    }
     
     users.push(newUser);
     closeModal('addUserModal');
-    renderUsersTable();
+    this.reset();
+    loadUsersTable();
     updateStats();
-    document.getElementById('addUserForm').reset();
+    alert('User added successfully');
 });
 
-// Add Vehicle Form Submission
-document.getElementById('addVehicleForm').addEventListener('submit', (e) => {
+document.getElementById('addVehicleForm').addEventListener('submit', function(e) {
     e.preventDefault();
     
     const newVehicle = {
-        id: vehicles.length + 1,
+        id: Math.max(...vehicles.map(v => v.id)) + 1,
         name: document.getElementById('newVehicleName').value,
-        plate: document.getElementById('newVehiclePlate').value,
+        plate: document.getElementById('newVehiclePlate').value.toUpperCase(),
         type: document.getElementById('newVehicleType').value,
-        status: 'available'
+        status: 'available',
+        currentHolder: null
     };
+    
+    // Check if plate already exists
+    if (vehicles.find(v => v.plate === newVehicle.plate)) {
+        alert('License plate already exists');
+        return;
+    }
     
     vehicles.push(newVehicle);
     closeModal('addVehicleModal');
-    renderAdminDashboard();
-    document.getElementById('addVehicleForm').reset();
+    this.reset();
+    loadVehiclesTable();
+    loadAdminKeyGrid();
+    updateStats();
+    alert('Vehicle added successfully');
 });
 
-// Delete User
-function deleteUser(userId) {
-    if (confirm('Are you sure you want to delete this user?')) {
-        const index = users.findIndex(u => u.id === userId);
-        if (index !== -1) {
-            users.splice(index, 1);
-            renderUsersTable();
-            updateStats();
-        }
-    }
+// Edit Functions
+function editUserPermissions(userId) {
+    const user = users.find(u => u.id === userId);
+    const vehicleCheckboxes = vehicles.map(v => 
+        `<label style="display: block; margin: 5px 0;">
+            <input type="checkbox" value="${v.id}" ${user.authorizedVehicles.includes(v.id) ? 'checked' : ''}> 
+            ${v.name} (${v.plate})
+        </label>`
+    ).join('');
+    
+    const content = document.getElementById('keyModalContent');
+    content.innerHTML = `
+        <h3>Edit Permissions - ${user.name}</h3>
+        <p>Select authorized vehicles:</p>
+        <div style="max-height: 300px; overflow-y: auto; border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px; margin: 15px 0;">
+            ${vehicleCheckboxes}
+        </div>
+        <button class="btn btn-primary" onclick="saveUserPermissions(${userId})">Save Changes</button>
+    `;
+    
+    document.getElementById('keyModal').style.display = 'block';
 }
 
-// Delete Vehicle
+function saveUserPermissions(userId) {
+    const user = users.find(u => u.id === userId);
+    const checkboxes = document.querySelectorAll('#keyModalContent input[type="checkbox"]:checked');
+    user.authorizedVehicles = Array.from(checkboxes).map(cb => parseInt(cb.value));
+    
+    closeModal('keyModal');
+    loadUsersTable();
+    alert('Permissions updated successfully');
+}
+
+function editVehicle(vehicleId) {
+    const vehicle = vehicles.find(v => v.id === vehicleId);
+    const content = document.getElementById('keyModalContent');
+    
+    content.innerHTML = `
+        <h3>Edit Vehicle - ${vehicle.name}</h3>
+        <form id="editVehicleForm">
+            <div class="form-group">
+                <label>Vehicle Name</label>
+                <input type="text" id="editVehicleName" value="${vehicle.name}" required>
+            </div>
+            <div class="form-group">
+                <label>License Plate</label>
+                <input type="text" id="editVehiclePlate" value="${vehicle.plate}" required>
+            </div>
+            <div class="form-group">
+                <label>Vehicle Type</label>
+                <select id="editVehicleType" required>
+                    <option value="sedan" ${vehicle.type === 'sedan' ? 'selected' : ''}>Sedan</option>
+                    <option value="suv" ${vehicle.type === 'suv' ? 'selected' : ''}>SUV</option>
+                    <option value="truck" ${vehicle.type === 'truck' ? 'selected' : ''}>Truck</option>
+                    <option value="van" ${vehicle.type === 'van' ? 'selected' : ''}>Van</option>
+                    <option value="motorcycle" ${vehicle.type === 'motorcycle' ? 'selected' : ''}>Motorcycle</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <button type="button" class="btn btn-danger" onclick="deleteVehicle(${vehicleId})" style="margin-left: 10px;">Delete Vehicle</button>
+        </form>
+    `;
+    
+    document.getElementById('editVehicleForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const newPlate = document.getElementById('editVehiclePlate').value.toUpperCase();
+        if (vehicles.find(v => v.plate === newPlate && v.id !== vehicleId)) {
+            alert('License plate already exists');
+            return;
+        }
+        
+        vehicle.name = document.getElementById('editVehicleName').value;
+        vehicle.plate = newPlate;
+        vehicle.type = document.getElementById('editVehicleType').value;
+        
+        closeModal('keyModal');
+        loadVehiclesTable();
+        loadAdminKeyGrid();
+        alert('Vehicle updated successfully');
+    });
+    
+    document.getElementById('keyModal').style.display = 'block';
+}
+
 function deleteVehicle(vehicleId) {
-    if (confirm('Are you sure you want to delete this vehicle?')) {
+    const vehicle = vehicles.find(v => v.id === vehicleId);
+    
+    if (vehicle.status === 'in-use') {
+        alert('Cannot delete vehicle that is currently in use');
+        return;
+    }
+    
+    if (confirm(`Are you sure you want to delete ${vehicle.name}?`)) {
+        // Remove vehicle from all user authorizations
+        users.forEach(user => {
+            user.authorizedVehicles = user.authorizedVehicles.filter(id => id !== vehicleId);
+        });
+        
+        // Remove vehicle from vehicles array
         const index = vehicles.findIndex(v => v.id === vehicleId);
-        if (index !== -1) {
-            vehicles.splice(index, 1);
-            renderAdminDashboard();
-        }
+        vehicles.splice(index, 1);
+        
+        closeModal('keyModal');
+        loadVehiclesTable();
+        loadAdminKeyGrid();
+        loadUsersTable();
+        updateStats();
+        alert('Vehicle deleted successfully');
     }
 }
 
-// Logout
-function logout() {
-    currentUser = null;
-    localStorage.removeItem('currentUser');
-    dashboard.classList.add('hidden');
-    authScreen.classList.remove('hidden');
-    document.getElementById('loginForm').reset();
+// Close modals when clicking outside
+window.onclick = function(event) {
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
 }
 
-// Show Edit User Modal (placeholder)
-function showEditUserModal(user) {
-    alert(`Edit user ${user.name} functionality would go here`);
-}
-
-// Show Edit Vehicle Modal (placeholder)
-function showEditVehicleModal(vehicle) {
-    alert(`Edit vehicle ${vehicle.name} functionality would go here`);
-}
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    // Focus username field on load
+    document.getElementById('username').focus();
+});

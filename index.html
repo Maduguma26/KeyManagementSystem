@@ -4,15 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vehicle Key Management System</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <!-- Authentication Screen -->
     <div id="authScreen" class="auth-container">
-        <h2 class="auth-title">
-            <i class="fas fa-key"></i> Vehicle Key Management
-        </h2>
+        <h2 class="auth-title">🔐 Vehicle Key Management</h2>
         <form id="loginForm">
             <div class="form-group">
                 <label for="username">Username</label>
@@ -22,11 +19,11 @@
                 <label for="password">Password</label>
                 <input type="password" id="password" required>
             </div>
-            <button type="submit" class="btn btn-primary">
-                <i class="fas fa-sign-in-alt"></i> Login
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
+                Login
             </button>
         </form>
-        <div class="demo-credentials">
+        <div style="margin-top: 20px; text-align: center; color: #718096; font-size: 14px;">
             <p><strong>Demo Credentials:</strong></p>
             <p>Admin: admin / admin123</p>
             <p>User: john.doe / user123</p>
@@ -36,32 +33,20 @@
     <!-- Main Dashboard -->
     <div id="dashboard" class="container hidden">
         <div class="header">
-            <div class="logo">
-                <i class="fas fa-car-alt"></i> VehicleKey Pro
-            </div>
+            <div class="logo">🚗 VehicleKey Pro</div>
             <div class="user-info">
                 <span id="currentUser"></span>
-                <button class="btn btn-secondary" onclick="logout()">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </button>
+                <button class="btn btn-secondary" onclick="logout()">Logout</button>
             </div>
         </div>
 
         <!-- Admin Dashboard -->
         <div id="adminDashboard" class="hidden">
             <div class="nav-tabs">
-                <div class="nav-tab active" onclick="switchTab('overview')">
-                    <i class="fas fa-tachometer-alt"></i> Overview
-                </div>
-                <div class="nav-tab" onclick="switchTab('users')">
-                    <i class="fas fa-users"></i> Users
-                </div>
-                <div class="nav-tab" onclick="switchTab('vehicles')">
-                    <i class="fas fa-car"></i> Vehicles
-                </div>
-                <div class="nav-tab" onclick="switchTab('activity')">
-                    <i class="fas fa-history"></i> Activity Log
-                </div>
+                <div class="nav-tab active" onclick="switchTab('overview')">Overview</div>
+                <div class="nav-tab" onclick="switchTab('users')">Users</div>
+                <div class="nav-tab" onclick="switchTab('vehicles')">Vehicles</div>
+                <div class="nav-tab" onclick="switchTab('activity')">Activity Log</div>
             </div>
 
             <div id="overviewTab">
@@ -84,18 +69,16 @@
                     </div>
                 </div>
 
-                <h3 class="section-title">Key Status Overview</h3>
+                <h3 style="margin: 20px 0;">Key Status Overview</h3>
                 <div class="key-grid" id="adminKeyGrid"></div>
             </div>
 
             <div id="usersTab" class="hidden">
-                <div class="section-header">
-                    <h3 class="section-title">User Management</h3>
-                    <button class="btn btn-primary" onclick="showAddUserModal()">
-                        <i class="fas fa-user-plus"></i> Add User
-                    </button>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3>User Management</h3>
+                    <button class="btn btn-primary" onclick="showAddUserModal()">Add User</button>
                 </div>
-                <table class="data-table">
+                <table class="user-table">
                     <thead>
                         <tr>
                             <th>Name</th>
@@ -110,13 +93,11 @@
             </div>
 
             <div id="vehiclesTab" class="hidden">
-                <div class="section-header">
-                    <h3 class="section-title">Vehicle Management</h3>
-                    <button class="btn btn-primary" onclick="showAddVehicleModal()">
-                        <i class="fas fa-car-side"></i> Add Vehicle
-                    </button>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3>Vehicle Management</h3>
+                    <button class="btn btn-primary" onclick="showAddVehicleModal()">Add Vehicle</button>
                 </div>
-                <table class="data-table">
+                <table class="vehicle-table">
                     <thead>
                         <tr>
                             <th>Vehicle Name</th>
@@ -132,7 +113,7 @@
             </div>
 
             <div id="activityTab" class="hidden">
-                <h3 class="section-title">Activity Log</h3>
+                <h3>Activity Log</h3>
                 <div class="activity-log" id="activityLog"></div>
             </div>
         </div>
@@ -141,22 +122,16 @@
         <div id="userDashboard" class="hidden">
             <div class="dashboard">
                 <div class="sidebar">
-                    <h3 class="section-title">
-                        <i class="fas fa-user-circle"></i> My Profile
-                    </h3>
+                    <h3 style="margin-bottom: 15px;">My Profile</h3>
                     <div id="userProfile"></div>
                     
-                    <h3 class="section-title">
-                        <i class="fas fa-key"></i> Current Key
-                    </h3>
+                    <h3 style="margin: 20px 0 15px 0;">Current Key</h3>
                     <div id="currentKeyInfo">
-                        <p class="no-key-message">No key currently held</p>
+                        <p style="color: #718096;">No key currently held</p>
                     </div>
                 </div>
                 <div class="main-content">
-                    <h3 class="section-title">
-                        <i class="fas fa-key"></i> Available Keys
-                    </h3>
+                    <h3 style="margin-bottom: 15px;">Available Keys</h3>
                     <div class="key-grid" id="userKeyGrid"></div>
                 </div>
             </div>
@@ -174,9 +149,7 @@
     <div id="addUserModal" class="modal">
         <div class="modal-content">
             <button class="close-modal" onclick="closeModal('addUserModal')">&times;</button>
-            <h3 class="modal-title">
-                <i class="fas fa-user-plus"></i> Add New User
-            </h3>
+            <h3>Add New User</h3>
             <form id="addUserForm">
                 <div class="form-group">
                     <label for="newUserName">Full Name</label>
@@ -197,9 +170,7 @@
                         <option value="admin">Admin</option>
                     </select>
                 </div>
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save"></i> Add User
-                </button>
+                <button type="submit" class="btn btn-primary">Add User</button>
             </form>
         </div>
     </div>
@@ -207,9 +178,7 @@
     <div id="addVehicleModal" class="modal">
         <div class="modal-content">
             <button class="close-modal" onclick="closeModal('addVehicleModal')">&times;</button>
-            <h3 class="modal-title">
-                <i class="fas fa-car-side"></i> Add New Vehicle
-            </h3>
+            <h3>Add New Vehicle</h3>
             <form id="addVehicleForm">
                 <div class="form-group">
                     <label for="newVehicleName">Vehicle Name</label>
@@ -229,9 +198,7 @@
                         <option value="motorcycle">Motorcycle</option>
                     </select>
                 </div>
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save"></i> Add Vehicle
-                </button>
+                <button type="submit" class="btn btn-primary">Add Vehicle</button>
             </form>
         </div>
     </div>
